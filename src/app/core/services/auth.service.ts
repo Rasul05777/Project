@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse } from '../models';
 
@@ -22,6 +22,7 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(environment.authUrl, { login, password })
       .pipe(
+        timeout(10000),
         tap((res) => {
           localStorage.setItem(TOKEN_KEY, res.token);
           this.token.set(res.token);

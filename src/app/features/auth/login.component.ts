@@ -149,9 +149,18 @@ export class LoginComponent {
       next: () => this.router.navigate(['/clients']),
       error: (err: HttpErrorResponse) => {
         this.loading.set(false);
-        const body = err.error as ApiErrorBody | null;
-        const message = body?.message ?? 'Ошибка авторизации. Попробуйте позже.';
-        this.snackBar.open(message, 'Закрыть', { duration: 5000 });
+        let message: string;
+        if (err.status === 0) {
+          message = 'Сервер недоступен. Проверьте подключение к сети.';
+        } else if (err.status === 403) {
+          message = 'Доступ запрещён сервером (403). Возможна IP-фильтрация.';
+        } else if (err.name === 'TimeoutError') {
+          message = 'Превышено время ожидания ответа от сервера.';
+        } else {
+          const body = err.error as ApiErrorBody | null;
+          message = body?.message ?? `Ошибка авторизации (${err.status}).`;
+        }
+        this.snackBar.open(message, 'Закрыть', { duration: 7000 });
       },
     });
   }
